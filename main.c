@@ -13,6 +13,7 @@
 
 int commandsinline=0;
 #define PARAMS 64
+
 /*
   Function Declarations for builtin shell commands:
  */
@@ -23,7 +24,7 @@ void redir(char* line);
 void bg(char* line);
 
 /*
-  List of builtin commands, followed by their corresponding functions.
+  List of commands besides the programs in /bin/
  */
 char* commands[]= {
   "cd",
@@ -34,9 +35,8 @@ char* commands[]= {
 };
 
 /**
-   @brief Bultin command: change directory.
-   @param args List of args.  args[0] is "cd".  args[1] is the directory.
-   @return Always returns 1, to continue executing.
+   @param line with the path.
+   @return void
  */
 void cdcommand(char *line)
 {
@@ -50,9 +50,8 @@ void cdcommand(char *line)
 }
 
 /**
-  @brief Launch a program and wait for it to terminate.
-  @param args Null terminated list of arguments (including program).
-  @return Always returns 1, to continue execution.
+  @param line line with the command and args. 
+  @return Return 1 to continue, 0 to exit.
  */
 int startsh(char *line)
 {
@@ -66,44 +65,45 @@ int startsh(char *line)
 
     char* command = strsep(&line, " ");
 
-    //Si el comando ingresado es cd
+    //Command 'cd'
     if(!strcmp(command ,commands[0]) && !m){    
       cdcommand(line);
       m=true;
     }
-    //Si el comando ingresado es help
+    //Command 'help'
     if(!strcmp(command,commands[1]) && !m){
-       printf("Este lindo shell es propiedad de Omar y Valentina\n");
-  	printf("Escriba por favor el comando seguido de parametros u otros programas\n");
-  	printf("Recuerde usar caracteres como '|' '&&' o ';'\n");
-	printf("O escribir '--help' al lado del comando.\n");
-	printf("Por favor, evitar usar init 0 :c.\n");
-      m=true;
+    char str[999];
+    FILE * file;
+    file = fopen("README.md" , "r");  
+    if (file) {
+    while (fgets(str, sizeof(str), file))
+        printf("%s\n",str);
     }
-    //Si el comando ingresado es QUIT
+    fclose(file);
+    }
+
+    //Command 'QUIT'
     if(!strcmp(command,commands[2]) && !m){
       return 0;
     }
 
-    //Si el comando ingresado es REDIR
-    if(!strcmp(command,commands[3]) && !m){
-      m=true;
+    //Command 'REDIR'
+    if(!strcmp(command,commands[3])){
       redir(line);
     }
 
-    //Si el comando ingresado es BG
-    if(!strcmp(command,commands[4]) && !m){
-      m=true;
+    //Command 'BG'
+    if(!strcmp(command,commands[4])){
       bg(line);
     }    
 
+    //For other commands
     pid=fork();
 
     if(pid==0){
       char *execArgs[64];
       trimargs(line, execArgs);
       execvp(command, execArgs);
-      m=true;
       exit(0);
     }
     else{     
@@ -113,8 +113,9 @@ int startsh(char *line)
   return 1;
 }
 
-/***********************************************/
-//	LEER LA LINEA INGRESADA
+/*
+  Read a line with dynamic memory
+*/
 #define LSH_RL_BUFSIZE 1024
 char *readlinesh(void)
 {
@@ -154,6 +155,9 @@ char *readlinesh(void)
   }
 }
 
+/**
+  @param line which contains the whole command with args.
+*/
 void redir(char* line){
 
     bool inputmod=false;
@@ -189,8 +193,10 @@ void redir(char* line){
         while ((wpid = wait(&status)) > 0);
     }    
 }
-/***********************************************/
-//		FUNCION PARA CORRER PIPES
+
+/*
+  @param Two lines, the second one gets the outflow from the first one.
+*/
 int pipes(char ** comline, char ** comline2){
 	int fd[2];
 	pipe(fd);
@@ -201,16 +207,15 @@ int pipes(char ** comline, char ** comline2){
 	    printf("Fork error");
 	    return 1;
 	}
-	//Hijo
-	//Correr segundo comando
+	
+  //I'm the son
 	if(pid == 0){
 	close(fd[1]);
 	dup2(fd[0],0);
 	execvp(comline2[0],comline2);
 	return 0;
 	}
-	//padre
-	//El padre se encargara de correr el primer comando
+	//I'm the father
 	else{
 	close(fd[0]);
 	dup2(fd[1],1);
@@ -220,6 +225,9 @@ int pipes(char ** comline, char ** comline2){
 	
 }
 
+/**
+  @param line wich contains the commands.
+*/
 void bg(char* line){
   char* args[64];
   trimargs(line, args);
@@ -240,9 +248,8 @@ void bg(char* line){
 
 
 /**
-   @return status code
+   @return 1
  */
-//1267507
 int main(int argc, char **argv)
 {
   // Se realiza un ciclo infinito mientras status determine que el usuario no desea salir .
