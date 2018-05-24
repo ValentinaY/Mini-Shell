@@ -49,10 +49,6 @@ void cdcommand(char *line)
   }
 }
 
-
-
-
-
 /**
   @brief Launch a program and wait for it to terminate.
   @param args Null terminated list of arguments (including program).
@@ -86,17 +82,18 @@ int startsh(char *line)
     }
     //Si el comando ingresado es QUIT
     if(!strcmp(command,commands[2]) && !m){
-	exit(status);
       return 0;
     }
 
     //Si el comando ingresado es REDIR
     if(!strcmp(command,commands[3]) && !m){
+      m=true;
       redir(line);
     }
 
     //Si el comando ingresado es BG
     if(!strcmp(command,commands[4]) && !m){
+      m=true;
       bg(line);
     }    
 
@@ -105,7 +102,6 @@ int startsh(char *line)
     if(pid==0){
       char *execArgs[64];
       trimargs(line, execArgs);
-
       execvp(command, execArgs);
       m=true;
       exit(0);
@@ -116,75 +112,6 @@ int startsh(char *line)
 
   return 1;
 }
-
-
-
-/***********************************************/
-//	FUNCION PARA CORRER ENTRADA SIMPLE
-// COMANDO PARAM PARAM ... PARAM \0
-void regularcomm(char** comline){
-    
-  pid_t pid, wpid;
-  
-  bool m=false;
-  int status;
-    m=false;
-
-    char* path = malloc(strlen(comline[0])+1+5);
-    
-    strcpy(path, "/bin/");
-    strcat(path, comline[0]);
-
-    //Si el comando ingresado es cd
-    if(!strcmp(comline[0] ,commands[0]) && !m){    
-      cdcommand(comline[0]);
-      m=true;
-    }
-    //Si el comando ingresado es help
-    if(!strcmp(comline[0],commands[1]) && !m){
-       printf("Este lindo shell es propiedad de Omar y Valentina\n");
-  	printf("Escriba por favor el comando seguido de parametros u otros programas\n");
-  	printf("Recuerde usar caracteres como '|' '&&' o ';'\n");
-	printf("O escribir '--help' al lado del comando.\n");
-	printf("Por favor, evitar usar init 0 :c.\n");
-      m=true;
-    }
-    //Si el comando ingresado es QUIT
-    if(!strcmp(comline[0],commands[2]) && !m){
-	
-	exit(status);
-      //return 0;
-    }
-
-    //Si el comando ingresado es REDIR
-    if(!strcmp(comline[0],commands[3]) && !m){
-      redir(comline[0]);
-    }
-
-    //Si el comando ingresado es BG
-    if(!strcmp(comline[0],commands[4]) && !m){
-      
-    }    
-
-    pid=fork();
-
-    if(pid==0){
-  	 //   char *execArgs[] = { command, line, NULL };
-   	// char* args =((strchr(comline,' '))+1 ); 
-	//apunta al siguiente elemento tras el primer espacio de comline
-      execvp(comline[0], comline);// revisar el comline
-      m=true;
-      //exit(0);
-    }
-    else{     
-        while ((wpid = wait(&status)) > 0);
-    }
-//return 1;
-}
-
-
-
-
 
 /***********************************************/
 //	LEER LA LINEA INGRESADA
@@ -234,15 +161,9 @@ void redir(char* line){
     int fdi, fdo;
     char* input=getinput(line);
     char* output=getoutput(line);
-    char* newline=malloc(sizeof(char)*strlen(line));
-    newline=strsep(&line,"OUTPUTFILE=");
-    newline=strsep(&newline,"INPUTFILE=");
-    char* command=malloc(sizeof(char)*strlen(newline));
-    strcpy(command, newline);
-    command=strsep(&command, " ");
-    strsep(&newline, " ");
-    char* args=malloc(sizeof(char)*strlen(newline));
-    args=strsep(&newline, " ");
+    char* newline=trimredir(line);
+    char* args[64];
+    trimargs(newline, args);
 
       pid_t pid, wpid;
       int status;
@@ -250,7 +171,6 @@ void redir(char* line){
       pid=fork();
 
     if(pid==0){
-      char *execArgs[] = { command, args, NULL };
 
       if(input != NULL){
         fdi = open(input, O_RDONLY);        
@@ -262,7 +182,7 @@ void redir(char* line){
         dup2(fdo, STDOUT_FILENO);
         close(fdo);
       } 
-      execvp(command, execArgs);
+      execvp(args[0], args);
       exit(0);
     }
     else{     
@@ -380,7 +300,7 @@ int main(int argc, char **argv)
     }
     else if(pipe==false){
     //printf("entre a pipe false\n");
-    startsh(cline);
+    status=startsh(cline);
     }
   
   } while (status);

@@ -11,6 +11,27 @@ int trimargs(char* line, char** comline) {//comline is our vector for all the ar
 };//after this we should check first for the simple commands,then for the | & or ; 
 //omar note: still needs to be tested
 
+char* trimredir(char* s){
+    char* file= malloc(1*sizeof(char));
+    char c=' ';
+    int cont=10;
+    int pos;
+    int sizefile=1;
+    for(int i=0;i<strlen(s);i++){
+        if((s[i]==' ' && s[i+1]=='I') && (s[i+2]=='N' && s[i+3]=='P')){
+            return file;
+        }
+        if((s[i]==' ' && s[i+1]=='O') && (s[i+2]=='U' && s[i+3]=='T')){
+            return file;
+        }
+        file[i]=s[i];
+        sizefile++;
+        file=realloc(file, sizefile*sizeof(char));
+    }
+    return NULL;    
+}
+
+
 char* getinput(char* s){
 	char* file= malloc(1*sizeof(char));
 	char c=' ';
