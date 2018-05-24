@@ -310,12 +310,8 @@ void bg(char* line){
 
   if(pid==0){
     pid2=fork();
-    printf("Soy un bg\n");
     if(pid2==0){
-      printf("6\n");
-      printf("arg1%s,,,\n",args[1] );
       trimargs(line, args);
-
       execvp(args[0],args);
     }
   }
