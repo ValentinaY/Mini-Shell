@@ -102,8 +102,8 @@ int startsh(char *line)
 
     if(pid==0){
       char *execArgs[64];
-      trimargs(line, execArgs);
-      execvp(command, execArgs);
+      trimargs(complete, execArgs);
+      execvp(execArgs[0], execArgs);
       exit(0);
     }
     else{     

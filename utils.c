@@ -31,7 +31,6 @@ char* trimredir(char* s){
     return NULL;    
 }
 
-
 char* getinput(char* s){
 	char* file= malloc(1*sizeof(char));
 	char c=' ';

@@ -1,2 +1,2 @@
-main: main.c
-	gcc -o main main.c
+MiniShell: main.c
+	gcc -o MiniShell main.c
