@@ -225,6 +225,79 @@ int pipes(char ** comline, char ** comline2){
 	
 }
 
+
+/*
+  @param Two lines, the second only executes if first one is succesful.
+*/
+int ampersand(char ** comline, char ** comline2){
+	int error= 0;
+	pid_t pid = fork();
+	//int errno = 0;
+	//Error case
+	if(pid == -1){
+	    printf("Fork error");
+	    return 1;
+	}
+	//Hijo
+	if(pid == 0){
+	if (execvp(comline[0], comline) < 0) {
+	error=1;
+	}
+	 
+	return 0;
+	}
+	//padre
+	//Wait for the first command(the son) to end and if it is succesful then executes its own command
+	else{
+	int childstatus;
+        waitpid(pid, &childstatus, 0); 
+	printf("%d",error);
+	if(error==0){
+	execvp(comline2[0],comline2);
+	//printf("Error : \n");
+	//printf("%d",error);
+
+	}
+	else {
+	printf("Error in &&");
+	return 1; }
+	return 0;
+	}	
+	
+}
+
+/*
+  @param Two lines, the second only executes if first one is succesful.
+*/
+int semicolon(char ** comline, char ** comline2){
+	pid_t pid = fork();
+	 errno = 0;
+   // extern int errno;
+	//Error case
+	if(pid == -1){
+	    printf("Fork error");
+	    return 1;
+	}
+	//Hijo
+	//Correr el primer comando
+	if(pid == 0){
+	execvp(comline[0],comline);
+	strerror(errno);
+	return 0;
+	}
+	//padre
+	//Wait for the first command(the son) to end and then executes its own command
+	else{
+	int childstatus;
+        waitpid(pid, &childstatus, 0);
+	execvp(comline2[0],comline2);
+	strerror(errno);
+	return 0;
+	}	
+	
+}
+
+
 /**
   @param line wich contains the commands.
 */
@@ -281,7 +354,19 @@ int main(int argc, char **argv)
 	           pipe=true;      
          //  printf("pipe found\n");
            break;
-        }               
+        }   
+	if (strcmp(comline[i], "&&") == 0) {    
+            aux = i;
+	           amper=true;      
+           printf("amp found\n");
+           break;
+        }
+	if (strcmp(comline[i], ";") == 0) {    
+            aux = i;
+	           dot=true;      
+        //   printf("dot found\n");
+           break;
+        }              
     }
 
     if(pipe==true){//HERE
@@ -305,8 +390,53 @@ int main(int argc, char **argv)
 	break;
 	}
     }
-    else if(pipe==false){
+
+  if(amper==true){//HERE
+	printf("entre a amper true\n");
+	for (int i=0; i<aux; i++) {
+	comaux1[i]=comline[i];
+	//printf("%s",comaux1[i]);
+	//printf("\n");
+	}
+        aux2=0;
+	for (int i=aux+1; i< cant; i++) {  
+	//printf("Here2: \n");        
+	comaux2[aux2]=comline[i];
+	//printf("%s",comaux2[aux2]);
+	//printf("\n");
+                aux2++;
+        }     
+	if(ampersand(comaux1,comaux2)==0) {
+	//printf("ejecuto\n");	
+	break;
+	}
+    }
+    
+ if(dot==true){//HERE
+	//printf("entre a dot true\n");
+	for (int i=0; i<aux; i++) {
+	comaux1[i]=comline[i];
+	//printf("%s",comaux1[i]);
+	//printf("\n");
+	}
+        aux2=0;
+	for (int i=aux+1; i< cant; i++) {  
+	//printf("Here2: \n");        
+	comaux2[aux2]=comline[i];
+	//printf("%s",comaux2[aux2]);
+	//printf("\n");
+                aux2++;
+        }     
+	if(semicolon(comaux1,comaux2)==0) {
+	//printf("ejecuto\n");	
+	break;
+	}
+    }
+
+    
+    if(pipe==false && amper==false && dot==false){
     //printf("entre a pipe false\n");
+	
     status=startsh(cline);
     }
   
@@ -314,4 +444,3 @@ int main(int argc, char **argv)
 
   return 1;
 }
-
