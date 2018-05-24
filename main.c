@@ -74,7 +74,7 @@ int startsh(char *line)
     if(!strcmp(command,commands[1]) && !m){
     char str[999];
     FILE * file;
-    file = fopen("README.md" , "r");  
+    file = fopen("help" , "r");  
     if (file) {
     while (fgets(str, sizeof(str), file))
         printf("%s\n",str);
