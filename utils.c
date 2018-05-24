@@ -1,32 +1,15 @@
-//0 Ninguno, 1 &&, 2 ||, 3 &.
-int whatsfirst(char* s)
-{
-    for(int i=0;i<strlen(s);i++){
-    	if(s[i]=='&' && s[i+1]=='&'){
-    		return 1;
-    	}
-    	if(s[i]=='|' && s[i+1]=='|'){
-    		return 2;
-    	}
-    	if(s[i]=='&' && s[i+1]!='&'){
-    		return 3;
-    	}	
+/***********************************************/
+//  DE LINEA DE COMANDO A VECTOR DE COMANDOS
+int trimargs(char* line, char** comline) {//comline is our vector for all the arguments and commands inserted on the line
+    int cant=0;//cantidad de palabras en la linea
+    for(int i=0; i<63; i++) { //we'll admit at max 64 words between commands and arguments in one line
+        comline[i] = strsep(&line, " ");//adds the next found word to the vector
+        cant=i;
+        if(comline[i] == NULL) break;//if we reach EOF
     }
-    return 0;
-}
-
-int whatsfirsttwo(char* s)
-{
-    for(int i=0;i<strlen(s);i++){
-    	if(s[i]=='I' && s[i+1]=='N'){
-    		return 1;
-    	}
-    	if(s[i]=='O' && s[i+1]=='U'){
-    		return 2;
-    	}
-    }
-    return 0;
-}
+    return(cant);//we return yhe cuantitie
+};//after this we should check first for the simple commands,then for the | & or ; 
+//omar note: still needs to be tested
 
 char* getinput(char* s){
 	char* file= malloc(1*sizeof(char));
