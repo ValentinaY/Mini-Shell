@@ -1,9 +1,9 @@
-Mini Shell
-Autores: Omar Espinel, Valentina Yate.
+####Mini Shell
+**Autores: Omar Espinel, Valentina Yate.**
 
 Escriba los comandos de la bash seguidos de el '>' recuerde usar espacios entre los comandos.
 
-----Sobre el comando BG:
+##Sobre el comando BG:
 BG ejecutará procesos en segundo plano, escriba "BG" seguido del comando que desea ejecutar.
 
 Ejemplo:
@@ -12,7 +12,7 @@ Ejemplo:
 >BG whereis ssh
 
 
-----Sobre el comando REDIR:
+##Sobre el comando REDIR:
 REDIR redirecciona comandos a archivos o viceversa.
 
 Ejemplo:
@@ -21,7 +21,7 @@ Ejemplo:
 >REDIR ls -l OUTPUTFILE=ls.out
 
 
-----Sobre las pipes:
+##Sobre las pipes:
 Las pipes redireccionarán las salidas de comandos a otros. 
 
 Ejemplo:
